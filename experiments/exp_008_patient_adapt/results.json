@@ -1,0 +1,77 @@
+{
+  "patient": "chb12",
+  "adapt_files": [
+    "chb12_06.edf",
+    "chb12_08.edf",
+    "chb12_09.edf",
+    "chb12_10.edf"
+  ],
+  "test_files": [
+    "chb12_11.edf",
+    "chb12_23.edf",
+    "chb12_33.edf",
+    "chb12_36.edf",
+    "chb12_38.edf",
+    "chb12_42.edf"
+  ],
+  "zero_shot": {
+    "det": 1,
+    "tot": 17,
+    "per_file": {
+      "chb12_11.edf": [
+        0,
+        1
+      ],
+      "chb12_23.edf": [
+        1,
+        3
+      ],
+      "chb12_33.edf": [
+        0,
+        2
+      ],
+      "chb12_36.edf": [
+        0,
+        1
+      ],
+      "chb12_38.edf": [
+        0,
+        5
+      ],
+      "chb12_42.edf": [
+        0,
+        5
+      ]
+    }
+  },
+  "adapted": {
+    "det": 11,
+    "tot": 17,
+    "per_file": {
+      "chb12_11.edf": [
+        1,
+        1
+      ],
+      "chb12_23.edf": [
+        2,
+        3
+      ],
+      "chb12_33.edf": [
+        2,
+        2
+      ],
+      "chb12_36.edf": [
+        1,
+        1
+      ],
+      "chb12_38.edf": [
+        2,
+        5
+      ],
+      "chb12_42.edf": [
+        3,
+        5
+      ]
+    }
+  }
+}

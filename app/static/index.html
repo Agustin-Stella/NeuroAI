@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NeuroPilot AI</title>
+<style>
+  :root{
+    --bg:#F4F6F9; --surface:#FFFFFF; --surface-2:#EEF2F6;
+    --ink:#17202E; --muted:#5C6775; --hairline:#E2E7ED;
+    --ai:#0E8C86; --human:#B8712E; --alert:#D8543A;
+    --ai-soft:rgba(14,140,134,.10); --alert-soft:rgba(216,84,58,.10);
+    --shadow:0 1px 2px rgba(23,32,46,.04),0 8px 24px rgba(23,32,46,.06);
+    --dash:url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='16' ry='16' stroke='%23C4CBD4' stroke-width='2' stroke-dasharray='6 8' stroke-linecap='round'/%3e%3c/svg%3e");
+    --dash-over:url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='16' ry='16' stroke='%230E8C86' stroke-width='2' stroke-dasharray='6 8' stroke-linecap='round'/%3e%3c/svg%3e");
+    --font:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    --mono:ui-monospace,"SF Mono","Cascadia Code",Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+    --bg:#0C121C; --surface:#131C29; --surface-2:#1A2634;
+    --ink:#E7ECF3; --muted:#93A0B2; --hairline:#25333F;
+    --ai:#38BAB0; --human:#E0A05B; --alert:#F17A5C;
+    --ai-soft:rgba(56,186,176,.14); --alert-soft:rgba(241,122,92,.14);
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px rgba(0,0,0,.35);
+    --dash:url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='16' ry='16' stroke='%233C4A5C' stroke-width='2' stroke-dasharray='6 8' stroke-linecap='round'/%3e%3c/svg%3e");
+    --dash-over:url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='16' ry='16' stroke='%2338BAB0' stroke-width='2' stroke-dasharray='6 8' stroke-linecap='round'/%3e%3c/svg%3e");
+  }}
+  *{box-sizing:border-box}
+  body{background:var(--bg);color:var(--ink);font-family:var(--font);line-height:1.6;margin:0;
+    -webkit-font-smoothing:antialiased}
+  .wrap{max-width:900px;margin:0 auto;padding:clamp(1.4rem,4vw,3rem) clamp(1.1rem,4vw,2rem)}
+  .eyebrow{font-family:var(--mono);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--ai);font-weight:600;margin:0 0 .7rem}
+  h1{font-size:clamp(1.9rem,5vw,2.8rem);line-height:1.06;letter-spacing:-.02em;font-weight:800;margin:0 0 .7rem}
+  .lede{font-size:1.05rem;color:var(--muted);max-width:60ch;margin:0 0 2rem}
+
+  /* dropzone */
+  .drop{display:flex;flex-direction:column;align-items:center;gap:.35rem;
+    background-color:var(--surface-2);border:1.5px solid var(--hairline);border-radius:16px;
+    padding:2.7rem 1.5rem;text-align:center;cursor:pointer;box-shadow:var(--shadow);
+    transition:border-color .15s,background-color .15s}
+  .drop:hover{border-color:var(--ai)}
+  .drop.over{border-color:var(--ai);background-color:var(--ai-soft)}
+  .drop h2{margin:.2rem 0 .3rem;font-size:1.15rem}
+  .drop p{margin:0;color:var(--muted);font-size:.92rem}
+  .drop .glyph{font-size:2rem;line-height:1}
+  .drop input{display:none}
+  .btn{margin-top:1rem;display:inline-block;font-family:var(--font);font-weight:650;font-size:.95rem;
+    background:var(--ai);color:#fff;border:none;border-radius:10px;padding:.65rem 1.3rem;cursor:pointer}
+  .btn:disabled{opacity:.5;cursor:default}
+  .hint{margin-top:.9rem;font-family:var(--mono);font-size:.72rem;color:var(--muted);letter-spacing:.03em}
+
+  /* disclaimer */
+  .disclaimer{margin:0 0 1.6rem;background:var(--alert-soft);border:1px solid var(--alert);
+    border-left:4px solid var(--alert);border-radius:12px;padding:.9rem 1.1rem;font-size:.88rem;line-height:1.5}
+  .disclaimer strong{color:var(--alert)}
+  /* status */
+  .status{margin-top:1.5rem;display:none;align-items:center;gap:.8rem;font-size:.95rem;color:var(--muted)}
+  .status.show{display:flex}
+  .spin{width:20px;height:20px;border:2.5px solid var(--hairline);border-top-color:var(--ai);
+    border-radius:50%;animation:sp .8s linear infinite;flex:0 0 auto}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  @media (prefers-reduced-motion:reduce){.spin{animation:none}}
+  .err{margin-top:1.5rem;display:none;background:var(--alert-soft);border:1px solid var(--alert);
+    color:var(--ink);border-radius:12px;padding:1rem 1.2rem;font-size:.94rem}
+  .err.show{display:block}
+
+  /* results */
+  #results{display:none;margin-top:2.2rem}
+  #results.show{display:block}
+  .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:.9rem;margin-bottom:1.6rem}
+  @media (max-width:560px){.kpis{grid-template-columns:1fr}}
+  .kpi{background:var(--surface);border:1px solid var(--hairline);border-radius:13px;padding:1.1rem 1.2rem;
+    box-shadow:var(--shadow)}
+  .kpi .n{font-size:1.9rem;font-weight:800;letter-spacing:-.02em;line-height:1;font-variant-numeric:tabular-nums;color:var(--ai)}
+  .kpi .n.alert{color:var(--alert)}
+  .kpi .l{margin-top:.35rem;color:var(--muted);font-size:.85rem}
+  h3.sec{font-size:1.05rem;margin:1.8rem 0 .7rem;letter-spacing:-.01em}
+  figure{margin:0;background:var(--surface);border:1px solid var(--hairline);border-radius:13px;
+    padding:.7rem;box-shadow:var(--shadow);overflow-x:auto}
+  figure img{display:block;width:100%;min-width:520px;border-radius:7px}
+  figcaption{font-family:var(--mono);font-size:.72rem;color:var(--muted);padding:.5rem .3rem 0;letter-spacing:.02em}
+  .events{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:.5rem}
+  .events li{display:flex;align-items:center;gap:.8rem;background:var(--surface);border:1px solid var(--hairline);
+    border-left:3px solid var(--alert);border-radius:10px;padding:.7rem .95rem;font-size:.94rem}
+  .events .t{font-family:var(--mono);font-weight:600;color:var(--alert)}
+  .events .d{color:var(--muted);font-size:.85rem}
+  .chips{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.3rem}
+  .chip{font-family:var(--mono);font-size:.78rem;background:var(--ai-soft);color:var(--ai);
+    border-radius:999px;padding:.28rem .7rem;font-weight:600}
+  .none{background:var(--surface);border:1px solid var(--hairline);border-radius:12px;padding:1.1rem 1.3rem;
+    color:var(--muted);font-size:.95rem}
+  .safety{margin-top:2rem;background:var(--alert-soft);border:1px solid var(--alert);border-radius:12px;
+    padding:1rem 1.3rem;font-size:.9rem}
+  .safety b{color:var(--alert)}
+  footer{margin-top:2.6rem;padding-top:1.2rem;border-top:1px solid var(--hairline);
+    font-family:var(--mono);font-size:.72rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">NeuroPilot AI · Asistencia EEG</p>
+  <h1>Detección de crisis en EEG</h1>
+  <p class="lede">Subí una grabación <code>.edf</code>. El modelo la lee entera, marca los
+    eventos compatibles con crisis y te muestra por qué. Vos tomás la decisión clínica.</p>
+
+  <div class="disclaimer">
+    <strong>⚠️ Proyecto educativo y de investigación — no es un dispositivo médico.</strong>
+    No aprobado por ninguna autoridad sanitaria. <strong>No usar para diagnóstico ni con
+    datos de pacientes reales.</strong> Las detecciones son patrones compatibles, no un
+    diagnóstico, y no reemplazan el criterio de un profesional matriculado. Uso bajo tu
+    propia responsabilidad.
+  </div>
+
+  <form id="form">
+    <label class="drop" id="drop" for="file">
+      <div class="glyph">🧠</div>
+      <h2 id="dropTitle">Arrastrá tu EEG acá</h2>
+      <p id="dropSub">o hacé clic para elegir un archivo <code>.edf</code></p>
+      <input type="file" id="file" accept=".edf">
+      <div><button class="btn" id="go" type="submit" disabled>Analizar</button></div>
+      <div class="hint">se procesa localmente · puede tardar ~10–40&nbsp;s según el largo</div>
+    </label>
+  </form>
+
+  <div class="status" id="status"><div class="spin"></div><span id="statusTxt">Analizando la grabación…</span></div>
+  <div class="err" id="err"></div>
+
+  <section id="results">
+    <div class="kpis">
+      <div class="kpi"><div class="n alert" id="kEvents">0</div><div class="l">eventos compatibles con crisis</div></div>
+      <div class="kpi"><div class="n" id="kMin">0</div><div class="l">minutos analizados</div></div>
+      <div class="kpi"><div class="n" id="kThr">0</div><div class="l">umbral autocalibrado</div></div>
+    </div>
+
+    <h3 class="sec">Línea de tiempo</h3>
+    <figure><img id="imgTimeline" alt="Score de crisis a lo largo del registro">
+      <figcaption>Score de crisis por ventana · las bandas marcan los eventos detectados</figcaption></figure>
+
+    <h3 class="sec">Eventos detectados</h3>
+    <ul class="events" id="eventList"></ul>
+    <div class="none" id="noEvents" style="display:none">Sin eventos por encima del umbral en esta grabación.</div>
+
+    <div id="explainBlock">
+      <h3 class="sec">Por qué lo marcó</h3>
+      <div class="chips" id="chips"></div>
+      <figure style="margin-top:.7rem"><img id="imgExplain" alt="Mapa de saliencia: canales y tiempo">
+        <figcaption>Saliencia por gradiente · qué canales y en qué momento activaron la detección</figcaption></figure>
+    </div>
+
+    <div class="safety"><b>Herramienta de asistencia — no es diagnóstico.</b> Señala patrones
+      compatibles con crisis para acelerar la revisión de un profesional. No usar para
+      decisiones clínicas ni con pacientes reales. Uso bajo tu propia responsabilidad.</div>
+  </section>
+
+  <footer>NeuroPilot AI · proyecto educativo / investigación · corre 100% local · no apto para uso clínico ·
+    <a href="/legal" target="_blank" style="color:var(--ai)">aviso legal completo</a></footer>
+</div>
+
+<script>
+  const $ = id => document.getElementById(id);
+  const drop = $("drop"), fileInput = $("file"), go = $("go");
+  const statusEl = $("status"), errEl = $("err"), results = $("results");
+  let chosen = null;
+
+  function setFile(f){
+    chosen = f;
+    if(f){ $("dropTitle").textContent = f.name;
+      $("dropSub").innerHTML = (f.size/1e6).toFixed(1)+" MB · listo para analizar";
+      go.disabled = false; }
+  }
+  fileInput.addEventListener("change", e => setFile(e.target.files[0]));
+  ["dragenter","dragover"].forEach(ev => drop.addEventListener(ev, e=>{e.preventDefault();drop.classList.add("over");}));
+  ["dragleave","drop"].forEach(ev => drop.addEventListener(ev, e=>{e.preventDefault();drop.classList.remove("over");}));
+  drop.addEventListener("drop", e => { if(e.dataTransfer.files[0]) setFile(e.dataTransfer.files[0]); });
+
+  $("form").addEventListener("submit", async e => {
+    e.preventDefault();
+    if(!chosen) return;
+    errEl.classList.remove("show"); results.classList.remove("show");
+    statusEl.classList.add("show"); go.disabled = true;
+    try{
+      const fd = new FormData(); fd.append("file", chosen);
+      const r = await fetch("/api/detect", {method:"POST", body:fd});
+      const data = await r.json();
+      if(!r.ok){ throw new Error(data.error || "Error procesando el archivo"); }
+      render(data);
+    }catch(err){
+      errEl.textContent = "⚠️  " + err.message; errEl.classList.add("show");
+    }finally{
+      statusEl.classList.remove("show"); go.disabled = false;
+    }
+  });
+
+  function render(d){
+    $("kEvents").textContent = d.n_events;
+    $("kMin").textContent = d.minutes;
+    $("kThr").textContent = d.threshold;
+    $("imgTimeline").src = d.timeline_png;
+
+    const list = $("eventList"); list.innerHTML = "";
+    $("noEvents").style.display = d.n_events ? "none" : "block";
+    d.events.forEach((ev,i) => {
+      const li = document.createElement("li");
+      li.innerHTML = `<span class="t">#${i+1} · min ${ev.start_min}</span>`+
+        `<span class="d">${ev.start_sec}s – ${ev.end_sec}s · dura ${ev.dur_sec}s</span>`;
+      list.appendChild(li);
+    });
+
+    const eb = $("explainBlock");
+    if(d.explanation_png){
+      eb.style.display = "block";
+      $("imgExplain").src = d.explanation_png;
+      const chips = $("chips"); chips.innerHTML = "";
+      d.top_channels.forEach(c => {
+        const s = document.createElement("span"); s.className="chip";
+        s.textContent = `${c.channel} · ${(c.weight*100).toFixed(0)}%`; chips.appendChild(s);
+      });
+    } else { eb.style.display = "none"; }
+
+    results.classList.add("show");
+    results.scrollIntoView({behavior:"smooth", block:"start"});
+  }
+</script>
+</body>
+</html>

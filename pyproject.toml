@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "neuropilot"
+version = "0.0.1"
+description = "AI-powered neurological signal analysis assistant (EEG)."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "mne>=1.6",
+    "numpy>=1.24",
+    "scipy>=1.10",
+    "pandas>=2.0",
+    "scikit-learn>=1.3",
+    "torch>=2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4",
+    "jupyter",
+    "matplotlib",
+]
+
+[tool.setuptools.packages.find]
+include = ["neuropilot*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

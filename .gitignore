@@ -1,0 +1,55 @@
+# Datos — NUNCA se versionan con git (usar DVC)
+/data/
+*.edf
+*.edf.gz
+
+# DVC gestiona el dato; sus punteros sí van a git
+# (no ignorar .dvc ni dvc.yaml)
+
+# Modelos y checkpoints pesados
+*.pt
+*.pth
+*.ckpt
+checkpoints/
+# ...pero SÍ versionamos el modelo de despliegue (316K) para que el demo corra out-of-box
+!models/deployment_v1.pt
+
+# Cache de ventanas materializadas (regenerable, ~20GB) y datos npy pesados
+**/cache/
+*.npy
+
+# Logs de corridas
+*.log
+scratchpad/
+
+# Experimentos: los artefactos pesados no; los reportes .md sí
+mlruns/
+experiments/**/artifacts/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Notebooks
+.ipynb_checkpoints/
+
+# Testing / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE / SO
+.vscode/
+.idea/
+.DS_Store
+
+# Config local de herramientas y editor
+.claude/
+CLAUDE.md

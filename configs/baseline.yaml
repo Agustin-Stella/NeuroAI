@@ -1,0 +1,46 @@
+# Config de ejemplo — experimento baseline.
+# Cero hardcode: todo hiperparámetro vive acá. Reproducibilidad = este archivo + seed + hash de git.
+
+experiment:
+  name: baseline_bandpower_logreg
+  seed: 42
+  deterministic: true
+
+data:
+  dataset: chb-mit
+  dvc_version: null          # se completa con el hash DVC del dataset usado
+  sampling_rate_hz: 256
+  channels: all              # o lista explícita de canales
+
+preprocessing:
+  bandpass_hz: [0.5, 40.0]
+  notch_hz: 60               # línea eléctrica (usar 50 según región)
+  normalization: zscore      # stats calculados SOLO con train
+
+windowing:
+  window_seconds: 4.0
+  overlap_train: 0.5         # overlap SOLO en train
+  overlap_eval: 0.0          # en eval, sin overlap (no inflar métricas)
+
+split:
+  strategy: leave_one_subject_out   # LOSO
+  frozen_file: splits/v1.json        # split por paciente, congelado
+
+model:
+  type: logistic_regression   # baseline clásico
+  features: bandpower          # potencia por banda δ/θ/α/β/γ
+  class_weight: balanced       # desbalance de clases
+
+evaluation:
+  primary_metric: sensitivity_at_95_specificity
+  report:
+    - sensitivity
+    - specificity
+    - precision
+    - f1
+    - auprc
+    - false_negative_rate
+    - false_positive_rate
+
+tracking:
+  mlflow: true
